@@ -28,4 +28,5 @@ ip_address  ansible_ssh_user=ubuntu  ansible_ssh_pass=password ansible_ssh_extra
 ## And run the playbook !!!
 Example:   
 ```ansible-playboox -i /home/hme/inventory-k8s-green playbook```
+
 ```ansible-playbook -i inventory --user romain --become --ask-become-pass playbook```
