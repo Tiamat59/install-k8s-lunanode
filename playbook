@@ -2,16 +2,18 @@
 - hosts: all
   become: true
   tasks:
-    - name: apt get update cache
-      apt: update_cache=yes
+    # - name: apt get update cache
+      # apt: update_cache=yes
     - name: apt upgrade
       apt: name='*' state=latest
     - name: apt docker io
-      apt: name=docker.io state=latest update_cache=yes
+      apt: name=docker.io state=latest
     - name: set kubernetes deb repo in apt source list
       lineinfile: create=yes
                   dest=/etc/apt/sources.list.d/kubernetes.list
                   line="deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    - name: apt curl
+      apt: name=curl state=latest
     - name: get depo key
       shell:  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
     - name: Remove swapfile from /etc/fstab
@@ -52,31 +54,31 @@
   become: true
   tasks:
     - name: get rbac
-      become_user: ubuntu
+      become_user: romain
       get_url:
         url: https://tinyurl.com/yb4xturm
         dest: /home/{{ansible_ssh_user}}
     #- name: get calico
-    #  become_user: ubuntu
+    #  become_user: romain
     #  get_url:
     #    url: https://tinyurl.com/y8lvqc9g
     #    dest: /home/{{ansible_ssh_user}}
     - name: run kubeadmin init
-      shell: kubeadm init --pod-network-cidr 192.168.0.0/16 | tee kubeadm-init.out
+      shell: kubeadm init --pod-network-cidr 192.168.0.0/28 | tee kubeadm-init.out
     - name: copy master admin.conf to ansible controller
       get_url:
         url: file:///etc/kubernetes/admin.conf
         dest: /home/{{ansible_ssh_user}}/.kube/config
-        owner: ubuntu
-        group: ubuntu
+        owner: romain
+        group: romain
     - name: Fetch the file from master to the ansible controller
       run_once: yes
       fetch: src=/etc/kubernetes/admin.conf dest=/tmp/admin.conf flat=yes
     #- name: install rbac in kubernetes
-    #  become_user: ubuntu
-    #  command: kubectl apply -f /home/ubuntu/rbac-kdd.yaml
+    #  become_user: romain
+    #  command: kubectl apply -f /home/romain/rbac-kdd.yaml
     - name: install calico in kubernetes
-      become_user: ubuntu
+      become_user: romain
       command: kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/calico.yaml
     - name: get pem
       shell:  kubeadm token list | awk ' NR==2 {print $1}'
