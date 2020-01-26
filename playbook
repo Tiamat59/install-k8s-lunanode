@@ -2,7 +2,7 @@
 - hosts: all
   become: true
   tasks:
-    # - name: apt get update cache 
+    # - name: apt get update cache
     # apt: update_cache=yes
     - name: apt upgrade
       apt: name='*' state=latest
